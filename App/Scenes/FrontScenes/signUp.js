@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { KeyboardAwareScrollView } from 'react-native';
 import { Actions } from 'react-native-router-flux';
 import firebase from 'react-native-firebase';
 import Spinner from 'react-native-loading-spinner-overlay'
@@ -98,7 +99,6 @@ export default class SignUp extends Component {
                     textStyle={{ color: COLORS.PRIMARY }}
                 />
 
-
                 <CustomView style={{ paddingTop: 15, alignItems: 'center', justifyContent: 'center' }}>
                     <CustomText style={{ color: COLORS.PRIMARY, fontSize: 20 }}>Sign Up with your info</CustomText>
                 </CustomView>
@@ -145,9 +145,11 @@ export default class SignUp extends Component {
                     >
                         <CustomText style={{ color: COLORS.WHITE_BACKGROUND, fontSize: 15, alignSelf: 'center' }}>NEXT</CustomText>
                     </CustomTouchableOpacity>
+                
                 </CustomView >
 
             </CustomView>
+
         )
     }
 }

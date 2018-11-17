@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { ActivityIndicator, Modal } from 'react-native';
+import { KeyboardAvoidingView, Modal } from 'react-native';
 import { Actions } from 'react-native-router-flux';
 import Spinner from 'react-native-loading-spinner-overlay';
 import firebase from 'react-native-firebase';
@@ -57,6 +57,7 @@ export default class SignIn extends Component {
 
     render() {
         return (
+        
             <CustomView style={{ flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: COLORS.WHITE_BACKGROUND }}>
 
                 <Spinner
@@ -88,6 +89,7 @@ export default class SignIn extends Component {
                         </CustomTouchableOpacity>
                     </CustomView>
                 </CustomView>
+               
                 <CustomView style={{ paddingTop: 20, flexDirection: 'row' }}>
                     <CustomText>Not yet signed up! </CustomText>
                     <CustomTouchableOpacity onPress={() => Actions.SIGN_UP()} style={{ borderBottomWidth: 2, borderBottomColor: COLORS.PRIMARY }}>
@@ -105,6 +107,7 @@ export default class SignIn extends Component {
                     </CustomTouchableOpacity>
                 </CustomView >
             </CustomView>
+            
         )
     }
 }

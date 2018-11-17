@@ -20,7 +20,8 @@ export default class ContactList extends Component {
         super(props);
         this.state = {
             contacts: [],
-            contactName: ''
+            contactName: '',
+            imageUri:''
         }
     }
 
@@ -40,7 +41,7 @@ export default class ContactList extends Component {
         console.log('refff', ref);
         ref.once('value').then((snapshot) => {
             console.log('snapshot', snapshot.val());
-            this.setState({ contacts: snapshot.val() })
+            this.setState({ contacts: snapshot.val()})
 
         }).catch((error) => {
             console.log('error', error);
@@ -55,11 +56,11 @@ export default class ContactList extends Component {
         console.log('contacts', contacts);
         return (
             Object.keys(contacts).map((item) =>
-
+               
                 <CustomView style={{ height: 60, paddingTop: 10, flexDirection: 'row', marginLeft: 20, }}>
-                    <CustomTouchableOpacity style={{ flexDirection: 'row' }} onPress={() => Actions.CHAT_ROOM({ contacts: contacts[item].name, item })}>
+                    <CustomTouchableOpacity style={{ flexDirection: 'row' }} onPress={() => Actions.CHAT_ROOM({ contacts: contacts[item].name, item , imageUri: contacts[item].imageUri})}>
                         <CustomView style={{ alignItems: 'center', justifyContent: 'center', backgroundColor: COLORS.FADE, width: 50, height: 50, borderRadius: 25 }}>
-                            <CustomImage source={DpImage()} style={{ height: 30, width: 30 }} />
+                            <CustomImage source={{ uri : contacts[item].imageUri}} style={{ height: 50, width: 50, resizeMode: 'cover',borderRadius: 25}} />
                         </CustomView>
                         <CustomView style={{ marginLeft: 20, marginTop: 10, width: 300, alignItems: 'flex-start', justifyContent: 'flex-start', }}>
                             <CustomText style={{ color: COLORS.BLACK, fontWeight: 'bold', fontSize: 18 }}>{contacts[item].name}</CustomText>

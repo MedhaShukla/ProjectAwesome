@@ -7,14 +7,14 @@ import {
   TouchableOpacity,
   View
 } from 'react-native';
-// import { RNCamera } from 'react-native-camera';
+import { RNCamera } from 'react-native-camera';
 import { CustomView, CustomTouchableOpacity, CustomText } from '../../Custom-Components';
 
 export default class CameraScene extends Component {
   render() {
     return (
       <CustomView style={styles.container}>
-        {/* <RNCamera
+        <RNCamera
             ref={ref => {
               this.camera = ref;
             }}
@@ -31,18 +31,18 @@ export default class CameraScene extends Component {
         >
             <CustomText style={{fontSize: 14}}> SNAP </CustomText>
         </CustomTouchableOpacity>
-        </CustomView> */}
+        </CustomView>
       </CustomView>
     );
   }
 
-//   takePicture = async function() {
-//     if (this.camera) {
-//       const options = { quality: 0.5, base64: true };
-//       const data = await this.camera.takePictureAsync(options)
-//       console.log(data.uri);
-//     }
-//   };
+  takePicture = async function() {
+    if (this.camera) {
+      const options = { quality: 0.5, base64: true };
+      const data = await this.camera.takePictureAsync(options)
+      console.log(data.uri);
+    }
+  };
 }
 
 const styles = StyleSheet.create({

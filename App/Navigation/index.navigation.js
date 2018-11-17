@@ -100,11 +100,11 @@ class Navigation extends Component {
 
                                 <Stack key="Stack">
                                     {/* <Scene key="APP" initial component={App} hideNavBar /> */}
-                                    <Scene key="TnC" initial component={TnC} hideNavBar /> 
-                                    <Scene key="SIGN_IN" component={SignIn} hideNavBar />
+                                    <Scene key="TnC"   component={TnC} hideNavBar /> 
+                                    <Scene key="SIGN_IN" initial component={SignIn} hideNavBar />
                                     <Scene key="SIGN_UP" component={SignUp} hideNavBar />
                                     <Scene key="PROFILE" component={Profile} hideNavBar />
-                                    <Scene key="SCROLLABLE_TAB" component={ScrollableTab} hideNavBar />
+                                    <Scene key="SCROLLABLE_TAB"  component={ScrollableTab} hideNavBar />
                                     <Scene key="CHATS" component={Chats} /> 
                                     <Scene key="CHAT_ROOM" component={ChatRoom}  hideNavBar />
                                     <Scene key="CONTACT_LIST" component={ContactList} back backButtonTintColor={COLORS.WHITE_BACKGROUND} hideNavBar />

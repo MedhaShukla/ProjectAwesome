@@ -11,7 +11,6 @@ import {
 import COLORS from '../../Constants/color.constants';
 import { ChatImage, DpImage } from '../../Config/image.config';
 import { CONFIG } from '../../Constants/global.constants';
-import { SortArrayOfObjects } from '../../Utils/common.utils';
 
 export default class Chats extends Component {
     constructor(props) {
@@ -41,7 +40,7 @@ export default class Chats extends Component {
 
     showPeople = async () => {
 
-        const { recieverName, message, time, lastText, lastTime} = this.state;
+        const { recieverName, message, time,name, lastText, lastTime} = this.state;
 
         if (!firebase.apps.length) {
             firebase.initializeApp(CONFIG);
@@ -49,7 +48,12 @@ export default class Chats extends Component {
 
         const user = firebase.auth().currentUser;
 
-        firebase.database().ref('/chatroom').child('Entry-' + user._user.uid + '-' + (name || recieverName)).child('/conversation').once('value')
+      firebase.database().ref('/chatroom').child(user._user.uid).once('value')
+        .then((snaps)=>{
+            console.log('fir', snaps)
+            if(snaps.exists()){
+                console.log('ho wha tum ', snaps.exists());
+            firebase.database().child(user._user.uid).child('Entry-' + user._user.uid + '-' + (name || recieverName)).child('/conversation').once('value')
             .then((snapshot) => {
                 if (snapshot.exists()) {
                     var val = snapshot.val();
@@ -64,8 +68,10 @@ export default class Chats extends Component {
                     })
                 }
             })
+        }
+    })
 
-    const reff = firebase.database().ref('chatroom/');
+    const reff = firebase.database().ref('chatroom/').child(user._user.uid);
     reff.once('value').then((snapshot) => {
             var value = snapshot.val()
             Object.keys(value).map((item) => {
@@ -78,9 +84,11 @@ export default class Chats extends Component {
                             if (name == item) {
                                 firebase.database().ref('user/' + item).once('value')
                                     .then((namess) => {
-                                        var shubhnaam = new Array();
-                                        shubhnaam['name'] = namess._value.name;
-                                        shubhnaam['id'] = namess.key; 
+                                        console.log('namess', namess);
+                                        var goodname = new Array();
+                                        goodname['name'] = namess._value.name;
+                                        goodname['id'] = namess.key; 
+                                        goodname['imageUri'] = namess._value.imageUri
                                         firebase.database().ref("newChat").child(myName).child(name).once("value", snap => {
                                                 // if(snap && snap._value && snap._value.text){
                                                     let lastMsgs = Object.assign({}, this.state.lastMessages);
@@ -95,7 +103,7 @@ export default class Chats extends Component {
                                             })                                      
                                         this.setState({ recieverName: namess.key })
                                         let arr = this.state.chats;
-                                        arr.push(shubhnaam);
+                                        arr.push(goodname);
                                         this.setState({ chats: arr });
                                     })
                                 }
@@ -113,15 +121,15 @@ export default class Chats extends Component {
     }
 
     showMeUser = () => {
-        const { chats, lastMessages, lastTimes } = this.state;
+        const { chats, lastMessages, lastTimes, name } = this.state;
         return (
             <ScrollView showsVerticalScrollIndicator={false}>
                 {chats.map((item) => 
                     
                     <CustomView style={{ height: 80, paddingTop: 10, flexDirection: 'row', marginLeft: 20, }}>
-                        <CustomTouchableOpacity style={{ flexDirection: 'row' }} onPress={() => Actions.CHAT_ROOM({ contacts: item['name'], recieverName: item['id'], })}>
+                        <CustomTouchableOpacity style={{ flexDirection: 'row' }} onPress={() => Actions.CHAT_ROOM({ contacts: item['name'], recieverName: item['id'], imageUri:item['imageUri'] })}>
                             <CustomView style={{ alignItems: 'center', justifyContent: 'center', backgroundColor: COLORS.FADE, width: 50, height: 50, borderRadius: 25 }}>
-                                <CustomImage source={DpImage()} style={{ height: 25, width: 25 }} />
+                                <CustomImage source={{ uri: item['imageUri']}} style={{ height: 50, width: 50, resizeMode:'cover', borderRadius: 25 }} />
                             </CustomView>
 
                             <CustomView style={{ marginLeft: 20, marginTop: 5, width: 150, alignItems: 'flex-start', justifyContent: 'flex-start', borderBottomWidth: .4, borderColor: COLORS.FADE }}>

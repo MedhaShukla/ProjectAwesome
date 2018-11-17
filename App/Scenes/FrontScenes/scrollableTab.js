@@ -73,28 +73,28 @@ export default class ScrollableTab extends Component {
                 <View pointerEvents="none" style={{ position: 'absolute', pointerEvents: 'none', top: 70, left: 30, width: 20, height: 20, resizeMode: 'contain' }}>
                     <CustomImage pointerEvents="none" source={CameraImage()} style={{ width: 20, height: 20, resizeMode: 'contain' }} />
                 </View>
+                </CustomView>
 
 
+                //  / {this.state.isVisible 
+                //     <TouchableWithoutFeedback onPress={() => Actions.SCROLLABLE_TAB()}>
+                //         <Modal transparent={true} isVisible={this.state.isVisible} onBackdropPress={() => this.setState({ isVisible: false })}
+                //         >
+                //             <CustomView style={{ width: 170, height: 210, borderWidth: 2, borderColor: COLORS.FADE, zIndex: 10, top: 1, position: 'absolute', marginTop: 5, marginRight: 5, borderRadius: 10, marginLeft: 185 }}>
+                //                 {data.map((item) =>
+                //                     <CustomView style={{ paddingLeft: 10, margin: 10, backgroundColor: COLORS.WHITE_BACKGROUND }}>
+                //                         <TouchableWithoutFeedback >
+                //                             <CustomText style={{ color: COLORS.CONTACT_COLOR }}>{item}</CustomText>
+                //                         </TouchableWithoutFeedback>
+                //                     </CustomView>
+                //                 )}
+                //             </CustomView>
 
-                {this.state.isVisible ?
-                    <TouchableWithoutFeedback onPress={() => Actions.SCROLLABLE_TAB()}>
-                        <Modal transparent={false} isVisible={this.state.isVisible} onBackdropPress={() => this.setState({ isVisible: false })}
-                        >
-                            <CustomView style={{ width: 170, height: 210, borderWidth: 2, borderColor: COLORS.FADE, zIndex: 10, top: 1, position: 'absolute', marginTop: 5, marginRight: 5, borderRadius: 10, marginLeft: 185 }}>
-                                {data.map((item) =>
-                                    <CustomView style={{ paddingLeft: 10, margin: 10, backgroundColor: COLORS.WHITE_BACKGROUND }}>
-                                        <TouchableWithoutFeedback >
-                                            <CustomText style={{ color: COLORS.CONTACT_COLOR }}>{item}</CustomText>
-                                        </TouchableWithoutFeedback>
-                                    </CustomView>
-                                )}
-                            </CustomView>
+                //         </Modal>
+                //     </TouchableWithoutFeedback>
+                //     : null}
 
-                        </Modal>
-                    </TouchableWithoutFeedback>
-                    : null}
-
-            </CustomView>
+           
 
         );
     }

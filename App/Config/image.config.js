@@ -52,3 +52,9 @@ export function VoiceCallImage() {
 export function VedioCallImage() {
     return require('../Assets/Images/vediocall.png');
 }
+export function ShareIcon(){
+    return require('../Assets/Images/share.png')
+}
+export function ShareImageIcon(){
+    return require('../Assets/Images/shareImage.png')
+}

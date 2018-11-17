@@ -11,8 +11,9 @@ import {
     CustomTouchableOpacity,
     CustomTextInput
 } from '../../Custom-Components';
+import CONFIG from '../../Constants/global.constants';
 import COLORS from '../../Constants/color.constants';
-import { VedioCallImage, VoiceCallImage, BackArrowImage, MenuImage, DpImage } from '../../Config/image.config';
+import { VedioCallImage, VoiceCallImage, BackArrowImage, MenuImage, DpImage, ShareIcon, ShareImageIcon } from '../../Config/image.config';
 
 export default class ChatRoom extends Component {
     constructor(props) {
@@ -33,7 +34,8 @@ export default class ChatRoom extends Component {
             tokenCopyFeedback: '',
             lastText: '',
             lastTime: '',
-            data: {}
+            data: {},
+            imageUri: this.props.imageUri
         }
         console.log('name', name, this.state.contacts, '+', this.state.recieverName)
     }
@@ -54,10 +56,11 @@ export default class ChatRoom extends Component {
 
         // check if user exists or not , if exists show old chats and push a new message
 
-        firebase.database().ref('/chatroom').child('Entry-' + user._user.uid + '-' + (name || recieverName)).child('/conversation').once('value')
+        firebase.database().ref('/chatroom').child(user._user.uid).child('Entry-' + user._user.uid + '-' + (name || recieverName)).child('/conversation').once('value')
             .then((snapshot) => {
                 if (snapshot.exists()) {
                     var val = snapshot.val();
+                    console.log('oldChats', val)
                     Object.values(val).map((item) => {
                         let arr = message;
                         arr.push(item.text)
@@ -88,7 +91,7 @@ export default class ChatRoom extends Component {
 
         // create a new user
         const user = firebase.auth().currentUser;
-        firebase.database().ref('/chatroom').child('Entry-' + user._user.uid + '-' + (name || recieverName)).child('/conversation')
+        firebase.database().ref('/chatroom').child(user._user.uid).child('Entry-' + user._user.uid + '-' + (name || recieverName)).child('/conversation')
             .push({
 
                 sender: user._user.uid,
@@ -117,9 +120,9 @@ export default class ChatRoom extends Component {
                         </CustomView>
                     </CustomTouchableOpacity>
 
-                    <CustomTouchableOpacity onPress={() => Actions.PROFILE()}>
+                    <CustomTouchableOpacity>
                         <CustomView style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: COLORS.FADE, marginLeft: 10, paddingBottom: 20 }}>
-                            <CustomImage source={{}} style={{ width: 40, height: 40, borderRadius: 20, resizeMode: 'cover' }} />
+                            <CustomImage source={{ uri : this.state.imageUri}} style={{ width: 40, height: 40, borderRadius: 20, resizeMode: 'cover' }} />
                         </CustomView>
                     </CustomTouchableOpacity>
 
@@ -152,19 +155,21 @@ export default class ChatRoom extends Component {
                         renderItem={({ item, key }) =>
                             <CustomView style={{ alignItems: 'flex-end', justifyContent: 'center', padding: 5 }}>
                                 <CustomText style={{ paddingLeft: 20, paddingRight: 20, paddingTop: 5, paddingBottom: 5, borderRadius: 12, borderWidth: 2, borderColor: '#C2C2C2', fontSize: 20, color: '#009688' }}>{item}</CustomText>
-                                <CustomText>{key}</CustomText>
+                                <CustomText>{moment().format("DD/MM/YYYY, HH:mm")}</CustomText>
                             </CustomView>
                         }
                     />
 
                 </CustomView>
                 <CustomView style={{ flex: .2, flexDirection: 'row', alignItems: 'flex-end', marginBottom: 2 }}>
-                    <CustomView style={{ alignItems: 'flex-start', justifyContent: 'flex-start', flex: 1, borderWidth: 2, borderRadius: 15, width: 300, height: 50, }}>
-                        <CustomTextInput style={{ width: 350, height: 50 }}
-                            placeholder=" Type here..."
-                            value={this.state.text}
-                            onChangeText={(text) => this.setState({ text: text })} />
-                    </CustomView>
+                    {/* <CustomView style={{ width: 350, height: 50, flexDirection: 'row' }}> */}
+                        <CustomView style={{ alignItems: 'flex-start', justifyContent: 'flex-start', flex: 1, borderWidth: 2,borderColor:COLORS.PRIMARY, borderRadius: 20, width: 300, height: 50, }}>
+                            <CustomTextInput style={{ width: 300, height: 50 }}
+                                placeholder=" Type here..."
+                                value={this.state.text}
+                                onChangeText={(text) => this.setState({ text: text })} />
+                        </CustomView>
+
                     <CustomView style={{ alignItems: 'center', justifyContent: 'center', flex: .2, width: 50, height: 50 }}>
                         <CustomTouchableOpacity style={{ borderRadius: 25, width: 50, height: 50 }} onPress={() => this.showItem()}>
                             <CustomImage source={{ uri: 'https://cdn4.iconfinder.com/data/icons/flat-circle-content/800/circle-content-send-512.png' }} style={{ width: 50, height: 50, resizeMode: 'contain' }} />

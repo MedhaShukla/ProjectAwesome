@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 import { Actions } from 'react-native-router-flux';
 import firebase from 'react-native-firebase';
-import ImagePicker from 'react-native-image-picker';
+// import ImagePicker from 'react-native-image-picker';
+var ImagePicker = require("react-native-image-picker")
 import {
     CustomView,
     CustomText,
@@ -13,7 +14,7 @@ import {
 
 import COLORS from '../../Constants/color.constants';
 
-import { } from '../../Config/image.config';
+import CONFIG from '../../Constants/global.constants';
 
 
 const options = {
@@ -30,17 +31,12 @@ export default class Profile extends Component {
             text: '',
             name: '',
             avatarSource: null,
-            uri: ''
+            imageUri: ''
         }
         console.log('recieverName', this.props.contacts)
     }
 
-    GetTimeStamp(i = 0) {
-        return `${moment().unix()}${i}`;
-    }
-
     getImages = () => {
-        const { uri } = this.state;
         const user = firebase.auth().currentUser;
         const uid = user._user.uid;
         ImagePicker.showImagePicker(options, (response) => {
@@ -63,6 +59,7 @@ export default class Profile extends Component {
                 this.setState({ avatarSource: source, uri: response.uri })
                 firebase.storage().ref(url).putFile(response.path, metadata)
                     .then(res => {
+                        
                         console.log(res, 'res');
                         firebase.database().ref('/user').child(uid).set({
                             imageUri: res.downloadURL
@@ -87,9 +84,8 @@ export default class Profile extends Component {
             }
             const user = firebase.auth().currentUser;
             console.log('user', user)
-            firebase.database().ref('user/' + user._user.uid).update({
-                name,
-
+            firebase.database().ref('user/' + user._user.uid).push({
+                name: name
             }).then((data) => {
                 console.log('data', data);
             }).catch((error) => {
