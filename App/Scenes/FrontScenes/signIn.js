@@ -20,8 +20,8 @@ export default class SignIn extends Component {
         super(props);
         this.state = {
             text: '',
-            password: 'medhashukla',
-            email: 'medha.shukla@drivezy.com',
+            password: 'screenshot',
+            email: 'screenshot@drivezy.com',
             verificationCode: '',
             secureTextEntry: true,
             isLoading: false,

@@ -100,8 +100,8 @@ class Navigation extends Component {
 
                                 <Stack key="Stack">
                                     {/* <Scene key="APP" initial component={App} hideNavBar /> */}
-                                    <Scene key="TnC" initial component={TnC} hideNavBar /> 
-                                    <Scene key="SIGN_IN" component={SignIn} hideNavBar />
+                                    <Scene key="TnC"  component={TnC} hideNavBar /> 
+                                    <Scene key="SIGN_IN" initial component={SignIn} hideNavBar />
                                     <Scene key="SIGN_UP" component={SignUp} hideNavBar />
                                     <Scene key="PROFILE" component={Profile} hideNavBar />
                                     <Scene key="SCROLLABLE_TAB"  component={ScrollableTab} hideNavBar />

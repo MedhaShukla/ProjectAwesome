@@ -58,3 +58,6 @@ export function ShareIcon(){
 export function ShareImageIcon(){
     return require('../Assets/Images/shareImage.png')
 }
+export function SendImage(){
+    return require('../Assets/Images/right-arrow.png')
+}
