@@ -114,9 +114,7 @@ export default class Profile extends Component {
                 <CustomView style={{ flexDirection: 'row', paddingTop: 20 }}>
                     <CustomTouchableOpacity onPress={() => this.getImages()}>
                         <CustomView style={{ width: 60, height: 60, borderRadius: 30, backgroundColor: COLORS.FADE, margin: 10, marginBottom: 40, alignItems: 'center', justifyContent: 'center' }}>
-
                             <CustomImage source={this.state.avatarSource} style={{ width: 60, height: 60, borderRadius: 30, resizeMode: 'cover' }} />
-
                         </CustomView>
                     </CustomTouchableOpacity>
                     <CustomView style={{ width: 200, height: 60, borderBottomWidth: 2, borderBottomColor: COLORS.PRIMARY, paddingTop: 20 }}>

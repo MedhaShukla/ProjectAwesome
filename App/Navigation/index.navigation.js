@@ -38,7 +38,7 @@ import ChatRoom from '../Scenes/Chats/chatRoom';
 import Calls from '../Scenes/Calls/callList';
 import CameraScene from '../Scenes/Camera/CameraScene';
 import Status from '../Scenes/Status/statusScene';
-
+import Cameras from '../Scenes/Camera/Camera';
 
 //import images here
 
@@ -110,7 +110,8 @@ class Navigation extends Component {
                                     <Scene key="CONTACT_LIST" component={ContactList} back backButtonTintColor={COLORS.WHITE_BACKGROUND} hideNavBar />
                                     <Scene Key="STATUS" component={Status} />
                                     <Scene Key="CALLS" component={Calls} />
-                                    <Scene key="CAMERA" component={CameraScene} hideNavBar />
+                                    <Scene key="CAMERA_SCENE" component={CameraScene} hideNavBar />
+                                    <Scene key="CAMERA" component={Cameras} hideNavBar/>
                                 </Stack>
 
                             </Stack>

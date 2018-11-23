@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { FlatList, ScrollView, AsyncStorage, ListItem } from 'react-native';
+import { Share, FlatList, ScrollView, AsyncStorage, ListItem } from 'react-native';
 import firebase from 'react-native-firebase';
 import { Actions } from 'react-native-router-flux';
 import moment from 'moment';
@@ -14,7 +14,7 @@ import {
 import CONFIG from '../../Constants/global.constants';
 import COLORS from '../../Constants/color.constants';
 import { VedioCallImage, VoiceCallImage, BackArrowImage, MenuImage, SendImage, ShareIcon, ShareImageIcon } from '../../Config/image.config';
-import { GetDateTimeInDayDateTimeFormat } from '../../Utils/common.utils';
+
 
 export default class ChatRoom extends Component {
     constructor(props) {
@@ -47,10 +47,11 @@ export default class ChatRoom extends Component {
             msg: '',
             times: '',
             info: [],
-            data: []
+            data: [],
+            msgs: ''
 
         }
-        console.log('name', name, this.state.contacts, '+', this.state.recieverName)
+        // console.log('name', name, this.state.contacts, '+', this.state.recieverName)
     }
 
 
@@ -59,8 +60,8 @@ export default class ChatRoom extends Component {
     }
 
     showOldChats = () => {
-        const { name, time, times, data, recieverName, message, info, recieverMsg, recieverMsgTime, recieverids, msgArr, timeArr, idsArr, ids, obj1, obj, chat } = this.state;
-
+        const { name, msgs, time, times, data, recieverName, message, recieverMsg, recieverMsgTime, recieverids, msgArr, timeArr, idsArr, ids, obj1, obj, chat } = this.state;
+        let info = [];
         if (!firebase.apps.length) {
             firebase.initializeApp(CONFIG);
             console.log('config', CONFIG)
@@ -69,54 +70,22 @@ export default class ChatRoom extends Component {
         this.setState({ currentUser: user._user.uid });
         // check if user exists or not , if exists show old chats and push a new message
 
-        firebase.database().ref('/chatroom').child(user._user.uid).child('Entry-' + user._user.uid + '-' + (name || recieverName)).child('/conversation').once('value')
-            .then((snapshot) => {
-                if (snapshot.exists()) {
-                    var val = snapshot.val();
-                    console.log('oldChats', val)
-                    Object.values(val).map((item) => {
-                        // console.log('item', item.text, item.timeStamp, item.sender)
-                        //     let arr1 = message;
-                        //     arr1.push(item.text);
-                        //     let arr2 = time;
-                        //     arr2.push(item.time)
-                        //    let arr3 = ids;
-                        //     arr3.push(item.sender);
-                        //     console.log('hhvhhe', message)
-                        var object = {};
-                        object.id = item.sender;
-                        object.text = item.text;
-                        object.timeStamp = item.timeStamp;
-                        var arr = [];
-                        // arr.push({
-                        //     sender: item.sender,
-                        //     msg: item.text,
-                        //     timeStamp: item.timeStamp
-                        // })
-                        arr[item.sender] = { msg: item.text, timeStamp: item.timeStamp }
-                        console.log('arr', arr)
-                        info.push(arr)
-                        this.setState({ info: info })
-
-                        // info.map((item) => {
-                        //     console.log('infoItem', item);
-                        //     item.map((element) => {
-                        //         console.log('element', element);
-                        //         console.log('sender', element.sender);
-                        //         console.log('name', element.msg);
-                        //         console.log('timestamp', element.timeStamp);
-                        //         this.setState({ obj:  element})
-                        //         console.log('obj', obj)
-                        //         this.setState({sender: element.sender,msg: element.msg, times: element.timeStamp })
-                        //         })
-                        //     })
-                        // this.setState({ message:arr1, time:arr2, ids:arr3})
-
-
-                    })
-                }
-            })
-
+        firebase.database().ref('/user').child(user._user.uid).child('/chatroom').child(name||recieverName).on('value', snapshot=>{
+            if(snapshot.exists()){
+                var val = snapshot.val();
+                console.log('oldChats', val)
+                Object.values(val).map((item) => {
+                    var object = {};
+                    object.id = item.sender;
+                    object.msg = item.msgs;
+                    object.timeStamp = item.timeStamp;
+                    var arr = [];
+                    arr[item.sender] = { msg: item.msgs, timeStamp: item.timeStamp }
+                    info.reverse().push(arr)
+                    this.setState({ info: info })
+                })
+            }
+        })
     }
 
     showItem = () => {
@@ -133,39 +102,38 @@ export default class ChatRoom extends Component {
 
         // create a new user
         const user = firebase.auth().currentUser;
-        firebase.database().ref('/chatroom').child(user._user.uid).child('Entry-' + user._user.uid + '-' + (name || recieverName)).child('/conversation')
-            .push({
-
+        
+        firebase.database().ref('/user').child(user._user.uid).child('/chatroom').child(name||recieverName)
+        .push({
                 sender: user._user.uid,
                 reciever: (name || recieverName),
-                text,
+                msgs: text,
                 timeStamp: moment().format("DD/MM/YYYY, HH:mm")
 
             }).then(() => {
                 firebase.database().ref("newChat").child(user._user.uid).child(name || recieverName).set({
-                    text,
+                    msgs: text,
                     timeStamp: moment().format("DD/MM/YYYY, HH:mm")
                 })
             }).catch(err => console.log("cannot set data to newChat"));
 
-        firebase.database().ref('/chatroom').child(name || recieverName).child('Entry-' + (name || recieverName) + '-' + user._user.uid).child('/conversation')
-            .push({
-
+            firebase.database().ref('/user').child(name||recieverName).child('/chatroom').child(user._user.uid)
+        .push({
                 sender: user._user.uid,
                 reciever: (name || recieverName),
-                text,
+                msgs: text,
                 timeStamp: moment().format("DD/MM/YYYY, HH:mm")
 
             }).then(() => {
-                firebase.database().ref("newChat").child(name || recieverName).child(user._user.uid).set({
-                    text,
+                firebase.database().ref("newChat").child(user._user.uid).child(name || recieverName).set({
+                    msgs: text,
                     timeStamp: moment().format("DD/MM/YYYY, HH:mm")
                 })
             }).catch(err => console.log("cannot set data to newChat"));
     }
 
     render() {
-        const { contacts, name, lastText, lastTime, data, currentUser, info, obj, obj1, chat, id1, id2, recieverMsg, recieverMsgTime, message } = this.state;
+        const { contacts, name, lastText, lastTime, text, data, currentUser, info, obj, obj1, chat, id1, id2, recieverMsg, recieverMsgTime, message } = this.state;
         console.log('currentuser', info);
         return (
             <CustomView style={{ flex: 1 }}>
@@ -183,10 +151,11 @@ export default class ChatRoom extends Component {
                         </CustomView>
                     </CustomTouchableOpacity>
 
-                    <CustomView style={{ width: 100, alignItems: 'flex-start', justifyContent: 'flex-end', marginTop: 20, marginLeft: 10 }}>
-                        <CustomText style={{ color: COLORS.WHITE_BACKGROUND, fontWeight: 'bold', fontSize: 22, textAlign: 'center', marginBottom: 15 }}>  {this.props.contacts}</CustomText>
-                    </CustomView>
-
+                    <CustomTouchableOpacity>
+                        <CustomView style={{ width: 100, alignItems: 'flex-start', justifyContent: 'flex-end', marginTop: 20, marginLeft: 10 }}>
+                            <CustomText style={{ color: COLORS.WHITE_BACKGROUND, fontWeight: 'bold', fontSize: 22, textAlign: 'center', marginBottom: 15 }}>  {this.props.contacts}</CustomText>
+                        </CustomView>
+                    </CustomTouchableOpacity>
 
                     <CustomView style={{ marginTop: 20, alignItems: 'flex-end', justifyContent: 'flex-end', flexDirection: 'row', paddingLeft: 60 }}>
 
@@ -204,49 +173,63 @@ export default class ChatRoom extends Component {
 
                 </CustomView>
 
-                <CustomView style={{ flex: 1, margin: 2 }}>
-                <ScrollView style={{ flex: 1}} showsVerticalScrollIndicator={false}>
-                    <CustomView style={{ flex: 1, margin: 2 }}>
-                        {info.map((item, key) => {
-                            console.log('item', item, Object.keys(item)[0]);
-                            console.log('current medha', currentUser);
-                            return (
-                                <CustomView style={{ flex: 1}}>
-                                    <CustomView style={{ alignItems: Object.keys(item)[0] == currentUser ? 'flex-end' : 'flex-start', justifyContent: 'center', paddingTop: 20 }}>
-                                        {Object.values(item).reverse().map((valu) => {
-                                            console.log('uytuytu', valu.msg, valu.timeStamp)
-                                            return (
-                                                <CustomView  >
-                                                <CustomText style={{ margin: 5, paddingLeft: 20, paddingRight: 20, paddingTop: 5, paddingBottom: 5, backgroundColor: Object.keys(item)[0] == currentUser ? COLORS.PRIMARY : COLORS.WHITE_BACKGROUND, borderRadius: 12, borderWidth: 2, borderColor: '#DEDEDE', fontSize: 20, color: Object.keys(item)[0] == currentUser ? COLORS.WHITE_BACKGROUND : COLORS.PRIMARY, borderTopRightRadius: 2 }}>{valu.msg}</CustomText>
-                                                    {/* <CustomText style={{ margin: 5,paddingLeft: 20, paddingRight: 20, paddingTop: 5, paddingBottom: 5, backgroundColor: Object.keys(item)[0] == currentUser ? COLORS.PRIMARY : COLORS.WHITE_BACKGROUND, borderRadius: 12, borderWidth: 2, borderColor: '#DEDEDE', fontSize: 20, color: Object.keys(item)[0] == currentUser ? COLORS.WHITE_BACKGROUND : COLORS.PRIMARY, borderTopRightRadius: 2 }}>{valu.msg}</CustomText> */}
-                                                    <CustomText>{valu.timeStamp}</CustomText>
-                                                </CustomView>
-                                            )
-                                        }
+                <CustomView style={{ flex: 1, backgroundColor: '#F5F5F5' }}>
+                    <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false}>
+                        <CustomView style={{ flex: 1, margin: 2 }}>
+                            {info.reverse().map((item, key) => {
+                                console.log('item', item, Object.keys(item)[0]);
+                                console.log('current medha', currentUser);
+                                return (
+                                    <CustomView style={{ flex: 1 }}>
+                                        <CustomView style={{ alignItems: Object.keys(item)[0] == currentUser ? 'flex-end' : 'flex-start', justifyContent: 'center', paddingTop: 20 }}>
+                                            {Object.values(item).reverse().map((valu) => {
+                                                console.log('uytuytu', valu.msg, valu.timeStamp)
+                                                return (
+                                                    <CustomView  >
+                                                        <CustomText style={{ margin: 5, paddingLeft: 20, paddingRight: 20, paddingTop: 5, paddingBottom: 5, backgroundColor: Object.keys(item)[0] == currentUser ? '#AED581' : COLORS.WHITE_BACKGROUND, borderRadius: 12, borderWidth: 2, borderColor: '#DEDEDE', fontSize: 20, color: 'black', borderTopRightRadius: 4 }}>{valu.msg}</CustomText>
+                                                        <CustomText>{valu.timeStamp}</CustomText>
+                                                    </CustomView>
+                                                )
+                                            }
 
-                                        )}
+                                            )}
+                                        </CustomView>
                                     </CustomView>
-                                </CustomView>
-                            )
-                        })
-                        }
-                    </CustomView>
+                                )
+                            })
+                            }
+                        </CustomView>
                     </ScrollView>
                 </CustomView>
-                <CustomView style={{ flex: .12, flexDirection: 'row', alignItems: 'flex-end', marginBottom: 2 }}>
-
-                    <CustomView style={{ alignItems: 'flex-start', justifyContent: 'flex-start', flex: 1, borderWidth: 2, borderColor: COLORS.PRIMARY, borderRadius: 20, width: 300, height: 50, marginLeft: 10 }}>
-                        <CustomTextInput style={{ width: 300, height: 50 }}
-                            placeholder=" Type here..."
+                <CustomView style={{ flex: .12, flexDirection: 'row', alignItems: 'flex-end', marginBottom: 2, backgroundColor: '#F5F5F5' }}>
+                    <CustomView style={{ flexDirection: 'row', width: 300, height: 45, alignItems: 'flex-start', justifyContent: 'flex-start', borderRadius: 25, margin: 3, borderWidth: 1, borderColor: COLORS.FADE }}>
+                        <CustomTextInput style={{ width: 210, height: 45, fontSize: 15, color: COLORS.PRIMARY }}
+                            placeholder=" Type here...."
                             value={this.state.text}
-                            onChangeText={(text) => this.setState({ text: text })} />
-                    </CustomView>
+                            onChangeText={(text) => this.setState({ text: text })}
+                        />
+                        <CustomView style={{ width: 40, height: 50, alignItems: 'center', justifyContent: 'center', }}>
+                            <CustomTouchableOpacity onPress={() => Actions.CONTACT_LIST()}>
+                                <CustomImage source={ShareIcon()}
+                                    style={{ width: 22, height: 22, resizeMode: 'contain', marginRight: 20 }}
+                                />
+                            </CustomTouchableOpacity>
+                        </CustomView>
+                        <CustomView style={{ width: 40, height: 50, alignItems: 'center', justifyContent: 'center', }}>
+                            <CustomTouchableOpacity onPress={() => Actions.CAMERA({ contacts })}>
+                                <CustomImage source={ShareImageIcon()}
+                                    style={{ width: 22, height: 22, resizeMode: 'contain', marginRight: 15 }}
+                                />
+                            </CustomTouchableOpacity>
+                        </CustomView>
 
-                    <CustomView style={{ alignItems: 'center', justifyContent: 'center', flex: .2, width: 50, height: 50 }}>
-                        <CustomTouchableOpacity style={{ borderRadius: 25, width: 50, height: 50,backgroundColor: COLORS.PRIMARY, alignItems:'center', justifyContent:'center' }} onPress={() => this.showItem()}>
-                            <CustomImage source={SendImage()} style={{ width: 30, height: 30, resizeMode: 'contain' }} />
+                    </CustomView>
+                    <CustomView style={{ alignItems: 'flex-start', justifyContent: 'flex-start', flex: .2, width: 50, height: 45 }}>
+                        <CustomTouchableOpacity style={{ borderRadius: 25, width: 45, height: 45, backgroundColor: '#00796B', alignItems: 'center', justifyContent: 'center' }} onPress={() => this.showItem()}>
+                            <CustomImage source={SendImage()} style={{ width: 27, height: 27, resizeMode: 'contain' }} />
                         </CustomTouchableOpacity>
                     </CustomView>
+
                 </CustomView>
 
                 {this.state.modalVisible ?

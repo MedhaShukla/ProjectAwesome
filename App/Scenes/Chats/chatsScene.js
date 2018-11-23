@@ -25,9 +25,9 @@ export default class Chats extends Component {
             timeStamp: '',
             message: [],
             lastText: '',
-            lastTime: '', 
-            latestText:'',
-            lastTimes:{},
+            lastTime: '',
+            latestText: '',
+            lastTimes: {},
             lastMessages: {},
         }
         this.showPeople = this.showPeople.bind(this);
@@ -40,7 +40,7 @@ export default class Chats extends Component {
 
     showPeople = async () => {
 
-        const { recieverName, message, time,name, lastText, lastTime} = this.state;
+        const { recieverName, message, time, name, lastText, lastTime, } = this.state;
 
         if (!firebase.apps.length) {
             firebase.initializeApp(CONFIG);
@@ -48,98 +48,79 @@ export default class Chats extends Component {
 
         const user = firebase.auth().currentUser;
 
-      firebase.database().ref('/chatroom').child(user._user.uid).once('value')
-        .then((snaps)=>{
-            console.log('fir', snaps)
-            if(snaps.exists()){
-                console.log('ho wha tum ', snaps.exists());
-            firebase.database().child(user._user.uid).child('Entry-' + user._user.uid + '-' + (name || recieverName)).child('/conversation').once('value')
-            .then((snapshot) => {
-                if (snapshot.exists()) {
-                    var val = snapshot.val();
-                    Object.values(val).map((item) => {
-                        let arr = message;
-                        arr.push(item.text)
-                        this.setState({ message: arr });
-                        let array = time;
-                        array.push(time)
-                        this.setState({ time: array })
-                        this.setState({ lastText: item.text, lastTime: item.timeStamp })
-                    })
-                }
-            })
-        }
-    })
+        //check who exists in database
 
-    const reff = firebase.database().ref('chatroom/').child(user._user.uid);
-    reff.once('value').then((snapshot) => {
-            var value = snapshot.val()
-            Object.keys(value).map((item) => {
-                var name = item.split('-')[2];
-                var myName =  item.split("-")[1];
-                firebase.database().ref('user').once('value')
-                    .then((snapshot) => {
-                        var userId = snapshot._childKeys;
-                        userId.map((item) => {
-                            if (name == item) {
-                                firebase.database().ref('user/' + item).once('value')
-                                    .then((namess) => {
-                                        console.log('namess', namess);
+        firebase.database().ref('/user').child(user._user.uid).child('/chatroom').once('value')
+            .then(snaps => {
+                var val = snaps._childKeys
+                console.log('feerwer', val);
+                val.map((name) => {
+                    console.log('hb', name)
+                    firebase.database().ref('/user').once('value')
+                        .then((snapshot) => {
+                            var value = snapshot._childKeys;
+                            console.log('user', value)
+                            value.map((element) => {
+                                console.log('elemen', element)
+                                if (name == element) {
+                                    firebase.database().ref('/user').child(name).once('value').then((snap) => {
+                                        var namess = snap._value
+                                        console.log('snap', snap, namess.name, snap.key)
                                         var goodname = new Array();
-                                        goodname['name'] = namess._value.name;
-                                        goodname['id'] = namess.key; 
-                                        goodname['imageUri'] = namess._value.imageUri
-                                        firebase.database().ref("newChat").child(myName).child(name).once("value", snap => {
-                                                // if(snap && snap._value && snap._value.text){
-                                                    let lastMsgs = Object.assign({}, this.state.lastMessages);
-                                                    lastMsgs[name] = snap._value.text;
-                                                    let lastTime = Object.assign({}, this.state.lastTimes);
-                                                    lastTime[name] = snap._value.timeStamp;
-                                                    this.setState({
-                                                        lastMessages: lastMsgs, 
-                                                        lastTimes:lastTime
-                                                    })   
-                                                // }
-                                            })                                      
-                                        this.setState({ recieverName: namess.key })
+                                        goodname['name'] = namess.name;
+                                        goodname['id'] = snap.key;
+                                        goodname['imageUri'] = namess.imageUri
+
+                                        firebase.database().ref("newChat").child(user._user.uid).child(name).once("value", snap => {
+                                            console.log('sc', snap, snap._value.msgs, snap._value.timeStamp)
+                                            let lastMsgs = Object.assign({}, this.state.lastMessages);
+                                            lastMsgs[name] = snap._value.msgs;
+                                            let lastTime = Object.assign({}, this.state.lastTimes);
+                                            lastTime[name] = snap._value.timeStamp;
+                                            this.setState({
+                                                lastMessages: lastMsgs,
+                                                lastTimes: lastTime
+                                            })
+                                        })
+                                        this.setState({ recieverName: snap.key })
                                         let arr = this.state.chats;
                                         arr.push(goodname);
                                         this.setState({ chats: arr });
+
                                     })
                                 }
+                            })
                         })
-                       
-                    })
-            }) 
-
-
-        }).catch((err) => {
-            console.log('err', err)
-        })
-        reff.on('value', this.showMeUser)
-
+                })
+            }).catch((err) => {
+                console.log('err', err)
+            })
+        firebase.database().ref('/user').child(user._user.uid).child('/chatroom').on('value', this.showMeUser)
     }
 
     showMeUser = () => {
         const { chats, lastMessages, lastTimes, name } = this.state;
+        console.log('chas', chats, lastMessages, lastTimes)
         return (
             <ScrollView showsVerticalScrollIndicator={false}>
-                {chats.map((item) => 
-                    
+                {chats.map((item) =>
+
                     <CustomView style={{ height: 80, paddingTop: 10, flexDirection: 'row', marginLeft: 20, }}>
-                        <CustomTouchableOpacity style={{ flexDirection: 'row' }} onPress={() => Actions.CHAT_ROOM({ contacts: item['name'], recieverName: item['id'], imageUri:item['imageUri'] })}>
+                        <CustomTouchableOpacity style={{ flexDirection: 'row' }} onPress={() => Actions.CHAT_ROOM({ contacts: item['name'], recieverName: item['id'], imageUri: item['imageUri'] })}>
                             <CustomView style={{ alignItems: 'center', justifyContent: 'center', backgroundColor: COLORS.FADE, width: 50, height: 50, borderRadius: 25 }}>
-                                <CustomImage source={{ uri: item['imageUri']}} style={{ height: 50, width: 50, resizeMode:'cover', borderRadius: 25 }} />
+                                <CustomImage source={{ uri: item['imageUri'] }} style={{ height: 50, width: 50, resizeMode: 'cover', borderRadius: 25 }} />
                             </CustomView>
 
                             <CustomView style={{ marginLeft: 20, marginTop: 5, width: 150, alignItems: 'flex-start', justifyContent: 'flex-start', borderBottomWidth: .4, borderColor: COLORS.FADE }}>
                                 <CustomText style={{ color: COLORS.BLACK, fontWeight: 'bold', fontSize: 18 }}>{item['name']}</CustomText>
-                                    <CustomText>{ 
-                                        lastMessages && lastMessages.hasOwnProperty(item.id) ? lastMessages[item.id] : null
-                                    }</CustomText>
+                                <CustomText>{
+                                    lastMessages && lastMessages.hasOwnProperty(item.id) ? lastMessages[item.id] : null
+                                }</CustomText>
                             </CustomView>
                             <CustomView style={{ marginTop: 5, width: 170, alignItems: 'flex-start', justifyContent: 'flex-start', borderBottomWidth: .4, borderColor: COLORS.FADE, marginRight: 10 }}>
-                                <CustomText>{ lastTimes && lastTimes.hasOwnProperty(item.id)? lastTimes[item.id] : null}</CustomText>
+                                <CustomText>{
+                                    lastTimes && lastTimes.hasOwnProperty(item.id) ? lastTimes[item.id] : null
+                                }</CustomText>
                             </CustomView>
 
                         </CustomTouchableOpacity>
